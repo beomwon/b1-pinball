@@ -200,12 +200,24 @@ function startRace() {
 
 /* ── 후원 팝업 ───────────────────────────────────────────────────────────── */
 
+function isMobile() {
+  if (navigator.userAgentData) return navigator.userAgentData.mobile === true;
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+}
+
 function setupDonate() {
   const button = $("#btnDonate");
   const modal = $("#donateModal");
   if (!DONATE.url) return; // 송금코드가 없으면 버튼을 숨겨둔다
 
-  $("#donateLink").href = DONATE.url;
+  // 카카오페이 송금 링크는 앱이 깔린 기기에서만 열린다.
+  // PC 에서 누르면 404 가 뜨므로, 모바일에서만 버튼을 보여주고 PC 는 QR 만 띄운다.
+  if (isMobile()) {
+    $("#donateLink").href = DONATE.url;
+    $("#donateLink").hidden = false;
+    $("#donateScanHint").hidden = true;
+  }
+
   button.hidden = false;
 
   const open = () => {

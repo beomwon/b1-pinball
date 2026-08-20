@@ -93,7 +93,7 @@ body {
   left: 50%;
   bottom: 20px;
   transform: translateX(-50%);
-  width: min(700px, calc(100% - 24px));
+  width: min(640px, calc(100% - 24px));
 
   display: flex;
   flex-direction: column;
@@ -532,12 +532,26 @@ body {
    속도 조절
    -------------------------------------------------------------------------- */
 
-#speedCtl {
+/* 속도 조절 + 후원 버튼을 우측 하단에 나란히 묶는다 */
+.corner-dock {
   position: fixed;
   z-index: 999;
   right: 20px;
   bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
+/* 가로가 넉넉하지 않으면 조작 패널과 부딪힌다 — 그럴 땐 세로로 쌓는다 */
+@media (max-width: 1560px) {
+  .corner-dock {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+}
+
+#speedCtl {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -615,11 +629,6 @@ body {
 }
 
 .donate-btn {
-  position: fixed;
-  z-index: 999;
-  right: 20px;
-  bottom: 74px;
-
   display: flex;
   align-items: center;
   gap: 7px;
@@ -752,9 +761,27 @@ body {
   image-rendering: auto;
 }
 
+.modal-note {
+  margin: -4px 0 0;
+  font-size: 11.5px;
+  color: var(--text-faint);
+}
+
+.modal-thanks {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--text-dim);
+}
+
 .donate-open {
   width: 100%;
   text-decoration: none;
+}
+
+.donate-open[hidden],
+.modal-note[hidden] {
+  display: none;
 }
 
 @keyframes modal-fade {
@@ -856,17 +883,17 @@ div.toast {
     flex: 1 1 30%;
   }
 
-  #speedCtl {
+  .corner-dock {
     left: 12px;
     right: 12px;
     bottom: 12px;
-    justify-content: center;
+    flex-direction: row;
+    align-items: center;
   }
 
-  .donate-btn {
-    right: 12px;
-    bottom: auto;
-    top: 12px;
+  #speedCtl {
+    flex: 1;
+    justify-content: center;
   }
 
   #speedRange {
