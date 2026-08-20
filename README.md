@@ -93,8 +93,11 @@ docs/                    README 스크린샷
 
 Vercel 에 올라가 있다 — <https://b1-pinball.vercel.app>
 
+저장소가 Vercel 프로젝트에 연결돼 있어서 `main` 에 푸시하면 자동으로 배포된다.
+
 ```bash
-vercel deploy --prod
+git push          # 푸시하면 알아서 올라간다
+vercel deploy --prod   # 손으로 올리고 싶을 때
 ```
 
 빌드 단계가 없는 정적 사이트라 파일을 그대로 올린다.
