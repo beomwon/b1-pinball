@@ -1,0 +1,712 @@
+/* ==========================================================================
+   .B1 핀볼 — 화면 UI 전부
+   색·간격·반경은 아래 토큰만 고치면 전체가 따라 바뀐다.
+   ========================================================================== */
+
+/* 갈무리 11 — 한글 픽셀 폰트 (SIL OFL, assets/fonts/LICENSE.txt) */
+@font-face {
+  font-family: "Galmuri11";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    local("Galmuri11 Regular"),
+    url("./fonts/Galmuri11.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Galmuri11";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src:
+    local("Galmuri11 Bold"),
+    url("./fonts/Galmuri11-Bold.woff2") format("woff2");
+}
+
+/* 캔버스를 흐릿하게 늘리지 않고 도트 그대로 확대한다 —
+   픽셀 느낌의 8할은 이 한 줄에서 나온다. 원래 느낌으로 돌리려면 지우면 된다. */
+canvas {
+  image-rendering: pixelated;
+}
+
+:root {
+  /* 표면 */
+  --panel: rgba(19, 21, 29, 0.82);
+  --panel-solid: #171a23;
+  --field: rgba(9, 10, 15, 0.72);
+  --field-focus: rgba(9, 10, 15, 0.92);
+  --line: rgba(255, 255, 255, 0.09);
+  --line-strong: rgba(255, 255, 255, 0.16);
+
+  /* 글자 */
+  --text: #eef0f6;
+  --text-dim: #a7aebe;
+  --text-faint: #7d8496;
+
+  /* 강조 */
+  --accent: #4655f0;
+  --accent-hover: #5261fa;
+  --accent-fg: #ffffff;
+  --accent-soft: rgba(70, 85, 240, 0.16);
+  --focus: #93a1ff;
+
+  /* 형태 */
+  --r-lg: 18px;
+  --r-md: 11px;
+  --r-sm: 8px;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
+
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  font-family:
+    "Galmuri11",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Apple SD Gothic Neo",
+    "Segoe UI",
+    "Malgun Gothic",
+    system-ui,
+    sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   조작 패널 (dock)
+   -------------------------------------------------------------------------- */
+
+#settings {
+  position: fixed;
+  z-index: 999;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  width: min(700px, calc(100% - 24px));
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px;
+
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+
+  transition:
+    opacity 0.28s var(--ease),
+    transform 0.28s var(--ease),
+    visibility 0.28s;
+}
+
+/* 경주가 시작되면 엔진이 .hide 를 붙인다 */
+#settings.hide {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%) translateY(14px);
+  pointer-events: none;
+}
+
+/* 헤더 -------------------------------------------------------------------- */
+
+.dock-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--text-dim);
+  font: inherit;
+  cursor: pointer;
+  border-radius: var(--r-sm);
+}
+
+.dock-title {
+  flex: 1;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--text);
+}
+
+.dock-toggle-text {
+  font-size: 12px;
+}
+
+.dock-toggle .toggle-arrow {
+  display: inline-block;
+  font-style: normal;
+  font-size: 10px;
+  line-height: 1;
+  transition: transform 0.28s var(--ease);
+}
+
+.dock-toggle:hover {
+  color: var(--text);
+}
+
+/* 본문 -------------------------------------------------------------------- */
+
+.dock-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dock-body.collapsed {
+  display: none;
+}
+
+.field-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 7px;
+}
+
+.field-head h3 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.count.has-entries {
+  color: #98a4ff;
+}
+
+#in_names {
+  display: block;
+  width: 100%;
+  min-height: 78px;
+  max-height: 220px;
+  padding: 10px 12px;
+  resize: vertical;
+
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.6;
+  outline: none;
+  transition:
+    border-color 0.15s var(--ease),
+    background 0.15s var(--ease),
+    box-shadow 0.15s var(--ease);
+}
+
+#in_names::placeholder {
+  color: var(--text-faint);
+}
+
+#in_names:focus {
+  background: var(--field-focus);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* 옵션 -------------------------------------------------------------------- */
+
+.dock-options {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.opt {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.opt-map {
+  flex: 1.1;
+}
+
+.opt-rank {
+  flex: 1.5;
+}
+
+.opt-skill {
+  flex: 0.7;
+}
+
+.opt-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+  user-select: none;
+}
+
+.opt-label .icon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  opacity: 0.75;
+}
+
+/* 셀렉트 */
+.select-wrap {
+  position: relative;
+  min-width: 0;
+}
+
+.select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-top: -5px;
+  border-right: 1.5px solid var(--text-faint);
+  border-bottom: 1.5px solid var(--text-faint);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+#sltMap {
+  width: 100%;
+  height: 34px;
+  padding: 0 30px 0 11px;
+  appearance: none;
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s var(--ease);
+}
+
+#sltMap:hover {
+  border-color: var(--line-strong);
+}
+
+#sltMap option {
+  background: var(--panel-solid);
+  color: var(--text);
+}
+
+/* 세그먼트 컨트롤 (당첨 순위) */
+.btn-group {
+  display: flex;
+  min-width: 0;
+  height: 34px;
+  padding: 3px;
+  gap: 3px;
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+}
+
+.btn-group > * {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  color: var(--text-dim);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition:
+    background 0.15s var(--ease),
+    color 0.15s var(--ease);
+}
+
+.btn-group > button:hover {
+  color: var(--text);
+  background: var(--line);
+}
+
+.btn-group > .active {
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-weight: 600;
+}
+
+.btn-group > .active:hover {
+  background: var(--accent);
+}
+
+.btn-group input[type="number"] {
+  flex: 0 0 46px;
+  text-align: center;
+  background: rgba(127, 127, 127, 0.12);
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  outline: none;
+  cursor: text;
+}
+
+.btn-group input[type="number"].active {
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-weight: 600;
+}
+
+/* 스위치 */
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: 34px;
+  min-width: 0;
+  padding: 0 10px;
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  color: var(--text-dim);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    border-color 0.15s var(--ease),
+    color 0.15s var(--ease);
+}
+
+.switch-row:hover {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+
+.switch-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.switch-row input[type="checkbox"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.switch-row .track {
+  position: relative;
+  flex: none;
+  width: 30px;
+  height: 17px;
+  border-radius: 999px;
+  background: rgba(127, 127, 127, 0.35);
+  transition: background 0.2s var(--ease);
+}
+
+.switch-row .track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s var(--ease);
+}
+
+.switch-row input:checked ~ .track {
+  background: var(--accent);
+}
+
+.switch-row input:checked ~ .track::after {
+  transform: translateX(13px);
+}
+
+.switch-row:has(input:checked) {
+  color: var(--text);
+}
+
+.switch-row:has(input:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* 액션 -------------------------------------------------------------------- */
+
+.dock-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 42px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s var(--ease),
+    border-color 0.15s var(--ease),
+    transform 0.12s var(--ease);
+}
+
+.btn .icon {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+
+.btn:active {
+  transform: scale(0.985);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--line-strong);
+  color: var(--text-dim);
+}
+
+.btn-ghost:hover {
+  background: var(--line);
+  color: var(--text);
+}
+
+.btn-primary {
+  flex: 1;
+  background: var(--accent);
+  color: var(--accent-fg);
+  box-shadow: 0 6px 18px rgba(70, 85, 240, 0.35);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn[disabled]:active {
+  transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   속도 조절
+   -------------------------------------------------------------------------- */
+
+#speedCtl {
+  position: fixed;
+  z-index: 999;
+  right: 20px;
+  bottom: 20px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  user-select: none;
+}
+
+.speed-label {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+#speedVal {
+  min-width: 34px;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+#speedRange {
+  width: 130px;
+  height: 4px;
+  appearance: none;
+  background: linear-gradient(
+    to right,
+    var(--accent) 0%,
+    var(--accent) var(--fill, 0%),
+    rgba(127, 127, 127, 0.35) var(--fill, 0%),
+    rgba(127, 127, 127, 0.35) 100%
+  );
+  border-radius: 999px;
+  cursor: pointer;
+  outline: none;
+}
+
+#speedRange::-webkit-slider-thumb {
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--accent);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  transition: transform 0.12s var(--ease);
+}
+
+#speedRange::-webkit-slider-thumb:hover {
+  transform: scale(1.12);
+}
+
+#speedRange::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   토스트 (스킬 사용 알림 등)
+   -------------------------------------------------------------------------- */
+
+div.toast {
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  bottom: 88px;
+  transform: translateX(-50%);
+
+  padding: 9px 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  animation:
+    toast-in 0.22s var(--ease),
+    toast-in 0.22s var(--ease) 1s reverse forwards;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   좁은 화면
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 760px) {
+  /* 패널 위에 속도 조절을 쌓는다 — 경주가 시작돼 패널이 사라져도 자리가 안 바뀐다 */
+  #settings {
+    left: 12px;
+    right: 12px;
+    bottom: 66px;
+    width: auto;
+    transform: none;
+    padding: 12px;
+    gap: 12px;
+  }
+
+  #settings.hide {
+    transform: translateY(14px);
+  }
+
+  #in_names {
+    min-height: 68px;
+  }
+
+  /* 옵션은 두 줄로 접는다 — 맵 한 줄, 순위 + 스킬 한 줄 */
+  .dock-options {
+    flex-wrap: wrap;
+  }
+
+  .opt-map {
+    flex: 1 1 100%;
+  }
+
+  .opt-rank {
+    flex: 1 1 60%;
+  }
+
+  .opt-skill {
+    flex: 1 1 30%;
+  }
+
+  #speedCtl {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    justify-content: center;
+  }
+
+  #speedRange {
+    flex: 1;
+    max-width: 220px;
+  }
+
+  div.toast {
+    bottom: auto;
+    top: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

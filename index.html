@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>.B1 핀볼</title>
+    <meta name="description" content="이름을 넣고 구슬을 굴려 순위를 정하는 핀볼 추첨기" />
+    <meta name="theme-color" content="#0f1117" />
+    <meta name="color-scheme" content="dark" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content=".B1 핀볼" />
+    <meta property="og:description" content="이름을 넣고 구슬을 굴려 순위를 정하는 핀볼 추첨기" />
+
+    <!-- 번들 청크 / 이미지 / wasm 경로 매핑 (파일명은 원본 빌드의 해시 그대로) -->
+    <script type="importmap">
+      {
+        "imports": {
+          "14w6b": "./assets/14w6b.png",
+          "9F06a": "./assets/9F06a.png",
+          "aRf6a": "./assets/aRf6a.png",
+          "ao29o": "./assets/ao29o.js",
+          "b21ls": "./assets/b21ls.wasm",
+          "dRxiZ": "./assets/dRxiZ.js",
+          "g5g75": "./assets/g5g75.svg",
+          "h5gW1": "./assets/h5gW1.png",
+          "huS8a": "./assets/huS8a.png",
+          "ikqOI": "./assets/ikqOI.wasm"
+        }
+      }
+    </script>
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%23131520'/%3E%3Crect x='6' y='3' width='4' height='10' fill='%234655f0'/%3E%3Crect x='3' y='6' width='10' height='4' fill='%234655f0'/%3E%3Crect x='5' y='5' width='2' height='2' fill='%2393a1ff'/%3E%3C/svg%3E"
+    />
+
+    <link
+      rel="preload"
+      href="./assets/fonts/Galmuri11.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <link rel="stylesheet" href="./assets/engine.css" />
+    <link rel="stylesheet" href="./assets/ui.css" />
+  </head>
+
+  <body>
+    <script type="module" src="./assets/roulette.js"></script>
+    <script src="./assets/app.js"></script>
+
+    <!-- ── 조작 패널 ────────────────────────────────────────────────
+         id="settings" 는 게임 엔진이 경주 중 숨길 때 쓰는 이름이라 바꾸면 안 된다.
+         #in_names / #btnStart 도 유저스크립트가 붙잡는 지점이라 그대로 둔다. -->
+    <div id="settings" class="dock">
+      <button
+        type="button"
+        id="btnToggleSettings"
+        class="dock-toggle"
+        aria-expanded="true"
+        aria-controls="dockBody"
+      >
+        <span class="dock-title">.B1 핀볼</span>
+        <span class="dock-toggle-text">접기</span>
+        <i class="toggle-arrow" aria-hidden="true">▼</i>
+      </button>
+
+      <div id="dockBody" class="collapsible-rows dock-body">
+        <!-- 참가자 입력 — 한 줄 전체 -->
+        <section class="dock-names">
+          <div class="field-head">
+            <h3 id="lblNames">참가자</h3>
+            <span id="entryCount" class="count">0명</span>
+          </div>
+          <textarea
+            id="in_names"
+            aria-labelledby="lblNames"
+            spellcheck="false"
+            placeholder="쉼표나 줄바꿈으로 구분해서 입력하세요&#10;예) 홍길동, 김철수*3"
+          ></textarea>
+        </section>
+
+        <!-- 옵션 — 참가자 입력 아래에 가로로 -->
+        <section class="dock-options">
+          <div class="opt opt-map">
+            <label class="opt-label" for="sltMap">
+              <i class="icon map" aria-hidden="true"></i>
+              <span>맵</span>
+            </label>
+            <div class="select-wrap">
+              <select id="sltMap"></select>
+            </div>
+          </div>
+
+          <div class="opt opt-rank">
+            <span class="opt-label">
+              <i class="icon trophy" aria-hidden="true"></i>
+              <span>당첨 순위</span>
+            </span>
+            <div class="btn-group" role="group" aria-label="당첨 순위">
+              <button type="button" class="btn-winner btn-first-winner">첫번째</button>
+              <button type="button" class="btn-winner btn-last-winner active">마지막</button>
+              <input
+                type="number"
+                id="in_winningRank"
+                value="1"
+                min="1"
+                aria-label="당첨 순위 직접 지정"
+              />
+            </div>
+          </div>
+
+          <div class="opt opt-skill">
+            <span class="opt-label">
+              <i class="icon bomb" aria-hidden="true"></i>
+              <span>스킬</span>
+            </span>
+            <label class="switch-row" for="chkSkill">
+              <span class="switch-text">사용</span>
+              <input type="checkbox" id="chkSkill" checked />
+              <span class="track" aria-hidden="true"></span>
+            </label>
+          </div>
+        </section>
+      </div>
+
+      <div class="dock-actions">
+        <button type="button" id="btnShuffle" class="btn btn-ghost">
+          <i class="icon shuffle" aria-hidden="true"></i>
+          <span>섞기</span>
+        </button>
+        <button type="button" id="btnStart" class="btn btn-primary">
+          <i class="icon play" aria-hidden="true"></i>
+          <span>시작</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── 속도 조절 (경주 중에도 계속 보여야 해서 패널 밖에 둔다) ── -->
+    <div id="speedCtl">
+      <span class="speed-label">속도</span>
+      <input
+        type="range"
+        id="speedRange"
+        min="1"
+        max="5"
+        step="0.1"
+        value="1"
+        aria-label="재생 속도"
+      />
+      <span id="speedVal">1.0x</span>
+    </div>
+  </body>
+</html>
