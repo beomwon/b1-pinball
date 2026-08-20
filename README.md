@@ -9,6 +9,8 @@
 
 <br/>
 
+[![사이트 바로가기](https://img.shields.io/badge/%EC%82%AC%EC%9D%B4%ED%8A%B8-b1--pinball.github.io-4655F0?style=for-the-badge)](https://b1-pinball.github.io)
+
 ![라이선스](https://img.shields.io/badge/license-MIT-6B7BF7?style=flat-square)
 ![폰트](https://img.shields.io/badge/font-Galmuri11-4CC9F0?style=flat-square)
 ![의존성](https://img.shields.io/badge/dependencies-0-06D6A0?style=flat-square)
@@ -88,12 +90,14 @@ docs/                    README 스크린샷
 
 ## 배포
 
-`<계정명>.github.io` 저장소면 루트 도메인에, 일반 저장소면 `<계정명>.github.io/<저장소>` 에 뜬다.
-경로가 전부 상대경로라 어느 쪽이든 그대로 동작한다.
+이 저장소는 **b1-pinball 조직의 사용자 사이트**라서, `main` 에 푸시하면
+`https://b1-pinball.github.io` 루트에 그대로 올라간다.
 
 > **Settings → Pages → Source: Deploy from a branch → `main` / `(root)`**
 >
 > `.nojekyll` 이 있어서 Jekyll 처리 없이 파일 그대로 서빙된다.
+
+빌드 단계가 없다. 파일을 고치고 푸시하면 끝이다.
 
 <br/>
 
