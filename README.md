@@ -9,12 +9,12 @@
 
 <br/>
 
-[![사이트 바로가기](https://img.shields.io/badge/%EC%82%AC%EC%9D%B4%ED%8A%B8-b1--pinball.github.io-4655F0?style=for-the-badge)](https://b1-pinball.github.io)
+[![사이트 바로가기](https://img.shields.io/badge/b1--pinball.vercel.app-4655F0?style=for-the-badge&logo=vercel&logoColor=white)](https://b1-pinball.vercel.app)
 
 ![라이선스](https://img.shields.io/badge/license-MIT-6B7BF7?style=flat-square)
 ![폰트](https://img.shields.io/badge/font-Galmuri11-4CC9F0?style=flat-square)
 ![의존성](https://img.shields.io/badge/dependencies-0-06D6A0?style=flat-square)
-![배포](https://img.shields.io/badge/deploy-GitHub%20Pages-181717?style=flat-square&logo=github)
+![배포](https://img.shields.io/badge/deploy-Vercel-181717?style=flat-square&logo=vercel)
 
 <br/>
 
@@ -70,6 +70,7 @@ assets/
   b21ls.wasm · ikqOI.wasm  물리 엔진
   *.png · *.svg          맵/구슬 텍스처
 serve.js                 로컬 정적 서버 (의존성 없음)
+vercel.json              배포 설정 (캐시 헤더)
 tools/                   유저스크립트에서 게임 HTML 다시 뽑는 스크립트
 sample.script            원본 유저스크립트 (SOOP 채팅 수집기 + 게임 내장)
 docs/                    README 스크린샷
@@ -90,14 +91,15 @@ docs/                    README 스크린샷
 
 ## 배포
 
-이 저장소는 **b1-pinball 조직의 사용자 사이트**라서, `main` 에 푸시하면
-`https://b1-pinball.github.io` 루트에 그대로 올라간다.
+Vercel 에 올라가 있다 — <https://b1-pinball.vercel.app>
 
-> **Settings → Pages → Source: Deploy from a branch → `main` / `(root)`**
->
-> `.nojekyll` 이 있어서 Jekyll 처리 없이 파일 그대로 서빙된다.
+```bash
+vercel deploy --prod
+```
 
-빌드 단계가 없다. 파일을 고치고 푸시하면 끝이다.
+빌드 단계가 없는 정적 사이트라 파일을 그대로 올린다.
+`vercel.json` 은 폰트와 wasm 에 장기 캐시 헤더만 붙이고,
+`.vercelignore` 로 사이트 구동에 필요 없는 파일(원본 유저스크립트, 스크린샷 등)은 빼둔다.
 
 <br/>
 
