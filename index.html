@@ -141,11 +141,6 @@
     <!-- ── 우측 하단 묶음 — 속도 조절과 후원 버튼.
          조작 패널 밖이라 경주가 시작돼도 계속 보인다. -->
     <div class="corner-dock">
-      <button type="button" id="btnDonate" class="donate-btn" hidden>
-        <i class="icon heart" aria-hidden="true"></i>
-        <span>후원하기</span>
-      </button>
-
       <div id="speedCtl">
         <span class="speed-label">속도</span>
         <input
@@ -159,6 +154,11 @@
         />
         <span id="speedVal">1.0x</span>
       </div>
+
+      <button type="button" id="btnDonate" class="donate-btn" hidden>
+        <i class="icon heart" aria-hidden="true"></i>
+        <span>후원하기</span>
+      </button>
     </div>
 
     <!-- ── 후원 팝업 ──
@@ -191,11 +191,6 @@
         >
           카카오페이로 열기
         </a>
-
-        <p class="modal-thanks">
-          보내주시는 마음 하나하나가<br />
-          이 방송을 이어가게 합니다. 진심으로 감사드립니다.
-        </p>
       </div>
     </div>
   </body>
