@@ -47,6 +47,7 @@
 - **스킬** — 경주 중 구슬이 서로를 방해하는 이벤트. 끄면 순수 물리 싸움
 - **속도 조절** — 1.0x ~ 5.0x, 경주 중에도 조절 가능
 - **픽셀 폰트** — 갈무리11 (한글 지원 도트 폰트) + 캔버스 도트 확대
+- **후원 버튼** — 누르면 카카오페이 송금 QR 이 팝업으로 뜬다. 경주 중에도 계속 보인다
 - 참가자 수와 구슬 개수를 실시간으로 보여준다
 - 경주가 시작되면 패널이 사라지고, 끝나면 3초 뒤 돌아온다
 
@@ -65,6 +66,7 @@ assets/
   app.js                 조작 로직 — 입력 파싱, 버튼, 옵션, 속도, 토스트
   engine.css             게임 엔진이 쓰는 최소 스타일 (캔버스 + 아이콘)
   fonts/                 갈무리11 (SIL OFL)
+  donate-qr.png          카카오페이 송금 QR
   roulette.js            게임 본체 — 원본 빌드 번들 (minify 상태)
   ao29o.js · dRxiZ.js    box2d-wasm 로더 (SIMD / 일반)
   b21ls.wasm · ikqOI.wasm  물리 엔진
@@ -83,6 +85,7 @@ docs/                    README 스크린샷
 | 색·모서리·그림자 등 전체 톤 | `assets/ui.css` 맨 위 `:root` |
 | 패널 구성·문구·버튼 배치 | `index.html` `<body>` |
 | 버튼 동작, 이름 파싱, 맵 이름, 단축키 | `assets/app.js` |
+| 후원 송금코드 | `assets/app.js` 의 `DONATE.url` + `assets/donate-qr.png` (비우면 버튼이 사라진다) |
 | 픽셀 느낌 끄기 | `assets/ui.css` 의 `canvas { image-rendering: pixelated }` 삭제 |
 | 맵 추가 | `window.__marbleMaps` 배열에 맵 객체를 `push` |
 | 맵·스킬·물리 등 게임 내부 | `assets/roulette.js` — 번들이라 난이도 높음 |

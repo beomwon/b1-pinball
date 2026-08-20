@@ -152,5 +152,37 @@
       />
       <span id="speedVal">1.0x</span>
     </div>
+
+    <!-- ── 후원 (경주 중에도 보여야 해서 패널 밖에 둔다) ──
+         송금코드는 assets/app.js 의 DONATE 상수에서 설정한다.
+         값이 비어 있으면 버튼 자체가 안 보인다. -->
+    <button type="button" id="btnDonate" class="donate-btn" hidden>
+      <i class="icon heart" aria-hidden="true"></i>
+      <span>후원하기</span>
+    </button>
+
+    <div id="donateModal" class="modal" hidden>
+      <div class="modal-backdrop" data-close></div>
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="donateTitle">
+        <button type="button" class="modal-close" data-close aria-label="닫기">✕</button>
+        <h2 id="donateTitle">후원하기</h2>
+        <p class="modal-sub">카카오페이로 보내실 수 있습니다</p>
+        <img
+          id="donateQr"
+          class="donate-qr"
+          src="./assets/donate-qr.png"
+          alt="카카오페이 송금 QR 코드"
+        />
+        <a
+          id="donateLink"
+          class="btn btn-primary donate-open"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          카카오페이로 열기
+        </a>
+      </div>
+    </div>
   </body>
 </html>

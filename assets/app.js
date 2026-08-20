@@ -21,6 +21,11 @@ const MAP_NAMES = {
   "Yoru ni Kakeru": "밤을 달리다",
 };
 
+// 후원 — 카카오페이 송금코드. url 을 비우면 후원 버튼이 아예 안 보인다.
+const DONATE = {
+  url: "https://qr.kakaopay.com/281006011000043002117284",
+};
+
 // 엔진이 영어로 보내는 알림 문구
 const MESSAGES = {
   "The result has been copied": "결과를 복사했습니다",
@@ -167,6 +172,7 @@ function initialize() {
   setupMapSelect();
   setupSpeed();
   setupCollapse();
+  setupDonate();
 
   // 경주가 끝나면 패널을 다시 보여준다
   window.roulette.addEventListener("goal", () => {
@@ -190,6 +196,34 @@ function startRace() {
   if (!ready) return;
   window.roulette.start();
   $("#settings").classList.add("hide");
+}
+
+/* ── 후원 팝업 ───────────────────────────────────────────────────────────── */
+
+function setupDonate() {
+  const button = $("#btnDonate");
+  const modal = $("#donateModal");
+  if (!DONATE.url) return; // 송금코드가 없으면 버튼을 숨겨둔다
+
+  $("#donateLink").href = DONATE.url;
+  button.hidden = false;
+
+  const open = () => {
+    modal.hidden = false;
+    $(".modal-close").focus();
+  };
+  const close = () => {
+    modal.hidden = true;
+    button.focus();
+  };
+
+  button.addEventListener("click", open);
+  modal.addEventListener("click", (e) => {
+    if (e.target.hasAttribute("data-close")) close();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !modal.hidden) close();
+  });
 }
 
 /* ── 픽셀 폰트 ───────────────────────────────────────────────────────────── */
